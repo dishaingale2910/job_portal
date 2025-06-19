@@ -1,0 +1,28 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="dashboard-card" style="max-width: 400px; margin: 2em auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #e0e0e0; padding: 2em; position: relative;">
+    <a href="{% url 'dashboard_jobseeker' %}" style="position: absolute; left: 1.2em; top: 1.2em; color: #2980b9; text-decoration: none; font-size: 1.5em; font-weight: bold;">&lt;</a>
+    <h2 style="color: #2980b9; margin-bottom: 1em; text-align: center;">Edit Resume</h2>
+    {% if messages %}
+        <ul class="messages" style="list-style: none; padding: 0; margin-bottom: 1em;">
+            {% for message in messages %}
+                <li style="background: #eaf6ff; color: #2575fc; border-left: 4px solid #2980b9; padding: 0.7em 1em; border-radius: 6px; margin-bottom: 0.5em;">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% if resume_obj and resume_obj.file %}
+        <div style="margin-bottom: 1em;">
+            <strong>Current Resume:</strong> <a href="{{ resume_obj.file.url }}" target="_blank" style="color: #2575fc;">View</a>
+            <span style="color: #888; font-size: 0.95em;">(Last updated: {{ resume_obj.updated_at|date:'Y-m-d H:i' }})</span>
+        </div>
+    {% else %}
+        <div style="margin-bottom: 1em; color: #d9534f;">No resume uploaded yet.</div>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data" style="text-align: left;">
+        {% csrf_token %}
+        <label for="resume" style="font-weight: 500;">Upload New Resume (PDF, DOC, DOCX):</label>
+        <input type="file" name="resume" id="resume" accept=".pdf,.doc,.docx" required style="width: 100%; margin: 0.5em 0 1em 0; padding: 0.5em; border: 1px solid #e0e0e0; border-radius: 6px; background: #f7f7f7;">
+        <button type="submit" style="width: 100%; padding: 0.7em; background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%); color: #fff; border: none; border-radius: 8px; font-size: 1.05em; font-weight: 600; cursor: pointer; margin-bottom: 1em;">Save Resume</button>
+    </form>
+</div>
+{% endblock %}

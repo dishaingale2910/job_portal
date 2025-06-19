@@ -1,0 +1,12 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="dashboard-card">
+    <h2>Recruiter Dashboard</h2>
+    <p>Welcome to your dashboard. Use the links below to manage your jobs and view applicants.</p>
+    <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 1em;"><a href="{% url 'post_job' %}" style="color: #2575fc; font-weight: 600;">Post a Job</a></li>
+        <li style="margin-bottom: 1em;"><a href="{% url 'your_jobs' %}" style="color: #2575fc; font-weight: 600;">Your Jobs</a></li>
+        <li><a href="{% url 'view_applicants' %}" style="color: #2575fc; font-weight: 600;">View Applicants</a></li>
+    </ul>
+</div>
+{% endblock %}

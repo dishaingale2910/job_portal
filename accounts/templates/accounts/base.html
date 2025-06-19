@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7fafd; margin: 0; }
+        .navbar { background: #2980b9; color: #fff; padding: 1em; display: flex; align-items: center; justify-content: space-between; }
+        .navbar a { color: #fff; margin-right: 1em; text-decoration: none; }
+        .navbar-profile {
+            position: relative;
+            display: inline-block;
+        }
+        .user-icon {
+            width: 36px; height: 36px; border-radius: 50%; background: #6dd5fa; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #fff;
+        }
+        .user-icon svg { display: block; }
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 46px;
+            background: #fff;
+            color: #222;
+            min-width: 200px;
+            box-shadow: 0 2px 8px #e0e0e0;
+            border-radius: 8px;
+            z-index: 100;
+            padding: 1em 1.2em;
+        }
+        .navbar-profile:hover .profile-dropdown,
+        .navbar-profile:focus-within .profile-dropdown {
+            display: block;
+        }
+        .profile-dropdown p { margin: 0.2em 0; font-size: 1em; }
+        .profile-dropdown .profile-label { color: #2980b9; font-weight: 600; }
+        .profile-dropdown .logout-link { color: #d9534f; text-decoration: none; font-weight: 500; display: block; margin-top: 0.7em; }
+        .profile-dropdown .logout-link:hover { text-decoration: underline; }
+        .container { max-width: 900px; margin: 2em auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #e0e0e0; padding: 2em; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{% url 'dashboard_jobseeker' %}">Home</a>
+        {% if user.is_authenticated %}
+        <div class="navbar-profile" tabindex="0">
+            <div class="user-icon">
+                <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="32" fill="#6dd5fa"/>
+                    <path d="M32 34c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm0 4c-6.627 0-20 3.314-20 10v4h40v-4c0-6.686-13.373-10-20-10z" fill="#fff"/>
+                </svg>
+            </div>
+            <div class="profile-dropdown">
+                <p class="profile-label">{{ user.username }}</p>
+                <p>{{ user.email }}</p>
+                <p>Role: {{ user.get_role_display|default:user.role|title }}</p>
+                <a href="/accounts/profile/" style="color:#2575fc; text-decoration:none;">View Profile</a>
+                <a href="/accounts/logout/" class="logout-link">Logout</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

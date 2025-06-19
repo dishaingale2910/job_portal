@@ -1,0 +1,101 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post a Job</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #2980b9 0%, #6dd5fa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .job-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            padding: 2.5em 2em 2em 2em;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+        .job-card h2 {
+            margin-bottom: 1.2em;
+            color: #2980b9;
+            font-weight: 700;
+        }
+        .job-card form {
+            margin-bottom: 1em;
+            text-align: left;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        .job-card form div {
+            margin-bottom: 0.7em;
+        }
+        .job-card form label {
+            font-weight: 500;
+            margin-bottom: 0.3em;
+            display: block;
+        }
+        .job-card input[type="text"],
+        .job-card textarea {
+            width: 100%;
+            padding: 0.9em;
+            margin: 0.6em 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f7f7f7;
+            font-size: 1em;
+        }
+        .job-card button {
+            width: 100%;
+            padding: 0.9em;
+            background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1em;
+            transition: background 0.3s;
+        }
+        .job-card button:hover {
+            background: linear-gradient(90deg, #6dd5fa 0%, #2980b9 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="job-card">
+        <h2>Post a Job</h2>
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            <div>
+                <label for="id_title">Job Title</label>
+                <input type="text" name="title" id="id_title" required>
+            </div>
+            <div>
+                <label for="id_description">Description</label>
+                <textarea name="description" id="id_description" rows="4" required></textarea>
+            </div>
+            <div>
+                <label for="id_location">Location</label>
+                <input type="text" name="location" id="id_location" required>
+            </div>
+            <button type="submit">Post Job</button>
+        </form>
+        <div class="links" style="margin-top:1.5em;">
+            <a href="/accounts/dashboard_recruiter/">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

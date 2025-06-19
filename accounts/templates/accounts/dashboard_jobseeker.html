@@ -1,0 +1,119 @@
+{% extends "accounts/base.html" %}
+{% load dict_extras %}
+{% block content %}
+
+{% if messages %}
+  <div id="popup-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:2em 2.5em;border-radius:12px;box-shadow:0 4px 32px rgba(0,0,0,0.18);max-width:90vw;text-align:center;">
+      <span id="popup-message" style="font-size:1.1em;color:#2575fc;"></span><br><br>
+      <button onclick="document.getElementById('popup-modal').style.display='none'" style="background:#2575fc;color:#fff;padding:0.5em 2em;border:none;border-radius:6px;font-weight:600;">OK</button>
+    </div>
+  </div>
+  {% for message in messages %}
+    {% if "already applied" in message|stringformat:"s" %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          document.getElementById('popup-message').textContent = 'You have already applied for this job.';
+          document.getElementById('popup-modal').style.display = 'flex';
+        });
+      </script>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+<!-- Dashboard navigation (Available Jobs & Applied Jobs links) -->
+<div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:1.2em;gap:1.2em;">
+  <a href="{% url 'available_jobs' %}" class="applied-link-tiny" title="View Available Jobs">
+    <span class="applied-icon-tiny" aria-hidden="true">&#128188;</span> Available Jobs
+  </a>
+  <a href="{% url 'applied_jobs' %}" class="applied-link-tiny" title="View Applied Jobs">
+    <span class="applied-icon-tiny" aria-hidden="true">&#128221;</span> Applied Jobs
+  </a>
+</div>
+
+<!-- Language selection dropdown above the card -->
+<div style="display:flex;justify-content:center;margin-bottom:1.2em;">
+  <form method="get" style="display:flex;align-items:center;gap:0.7em;">
+    <label for="language" style="font-weight:600;color:#2575fc;">Select Language:</label>
+    <select name="language" id="language" onchange="this.form.submit()" style="padding:0.4em 1em;border-radius:7px;border:1.5px solid #d0d7de;font-size:1.05em;">
+      {% for code, name in languages %}
+        <option value="{{ code }}" {% if code == selected_language %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+<!-- Questions for the Day card below navigation -->
+<div style="display:flex;justify-content:center;margin-bottom:2em;">
+  <div style="flex:0 0 600px;max-width:600px;width:100%;">
+    <div class="question-card">
+      <h3 style="margin-top:0;margin-bottom:0.7em;color:#2575fc;font-size:1.2em;font-weight:700;">Questions for the Day</h3>
+      <div style="margin-bottom:0.7em;font-size:0.98em;color:#444;">Earn 10 points for each correct answer. Total Points: <b>{{ total_points }}</b></div>
+      {% if next_question %}
+        <form method="post" style="display:flex;flex-direction:column;gap:1.2em;">
+          {% csrf_token %}
+          <div class="question-block" style="background:#f8fafc;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 8px rgba(38,117,252,0.06);">
+            <div style="font-size:1.08em;margin-bottom:0.3em;"><b>{{ next_question.get_language_display }}</b></div>
+            <div style="margin-bottom:0.5em;">{{ next_question.question_text }}</div>
+            <input type="hidden" name="question_id" value="{{ next_question.id }}">
+            <input type="text" name="answer" placeholder="Your answer..." style="width:100%;padding:0.7em 1em;border-radius:7px;border:1.5px solid #d0d7de;font-size:1.05em;">
+            <button type="submit" style="margin-top:0.7em;background:#2575fc;color:#fff;border:none;border-radius:7px;padding:0.6em 1.5em;font-weight:600;font-size:1.05em;">Submit</button>
+          </div>
+        </form>
+      {% else %}
+        {% if languages|length > 0 %}
+          <div style="color:#888;font-size:1.05em;">All questions for {{ selected_language|title }} answered or no questions available for today.</div>
+        {% else %}
+          <div style="color:#888;font-size:1.05em;">No questions available for today.</div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ...existing main dashboard content can go here if needed... -->
+
+<style>
+.question-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(38,117,252,0.08);
+  padding: 2.5em 2.5em 2em 2.5em;
+  margin-top: 0;
+}
+.answer-status {
+  font-weight: 600;
+  margin-top: 0.5em;
+}
+.answer-correct {
+  color: #27ae60;
+}
+.answer-incorrect {
+  color: #e74c3c;
+}
+.applied-link-tiny {
+  display: inline-flex;
+  align-items: center;
+  color: #2575fc;
+  text-decoration: none;
+  font-weight: 400;
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 3px;
+  font-size: 0.92em;
+  line-height: 1.2;
+  transition: background 0.2s, color 0.2s;
+}
+.applied-link-tiny:hover {
+  background: #eaf6ff;
+  color: #174ea6;
+  text-decoration: none;
+}
+.applied-icon-tiny {
+  font-size: 1em;
+  vertical-align: middle;
+}
+</style>
+
+{% endblock %}

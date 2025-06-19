@@ -1,0 +1,122 @@
+<!-- templates/accounts/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #2980b9 0%, #6dd5fa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            padding: 2.5em 2em 2em 2em;
+            width: 100%;
+            max-width: 370px;
+            text-align: center;
+            position: relative;
+        }
+        .login-card h2 {
+            margin-bottom: 1.2em;
+            color: #2980b9;
+            font-weight: 700;
+        }
+        .login-card form {
+            margin-bottom: 1em;
+            text-align: left;
+            max-width: 320px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        .login-card form div {
+            margin-bottom: 0.7em;
+        }
+        .login-card form label {
+            font-weight: 500;
+            margin-bottom: 0.3em;
+            display: block;
+        }
+        .login-card input[type="text"],
+        .login-card input[type="email"],
+        .login-card input[type="password"] {
+            width: 100%;
+            padding: 0.9em;
+            margin: 0.6em 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f7f7f7;
+            font-size: 1em;
+        }
+        .login-card button {
+            width: 100%;
+            padding: 0.9em;
+            background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1em;
+            transition: background 0.3s;
+        }
+        .login-card button:hover {
+            background: linear-gradient(90deg, #6dd5fa 0%, #2980b9 100%);
+        }
+        .login-card .links {
+            margin-top: 1.5em;
+        }
+        .login-card .links a {
+            color: #2980b9;
+            text-decoration: none;
+            margin: 0 0.5em;
+            font-size: 0.98em;
+        }
+        .login-card .links a:hover {
+            text-decoration: underline;
+        }
+        .login-card .icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1em auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <svg class="icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="32" fill="#6dd5fa"/>
+            <path d="M32 34c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm0 4c-6.627 0-20 3.314-20 10v4h40v-4c0-6.686-13.373-10-20-10z" fill="#fff"/>
+        </svg>
+        <h2>Login</h2>
+        <form method="post" autocomplete="off" style="text-align:left; max-width:320px; margin:0 auto; padding:0;">
+            {% csrf_token %}
+            <div style="margin-bottom: 0.7em;">
+                <label for="id_username" style="font-weight:500; margin-bottom:0.3em; display:block;">Username</label>
+                {{ form.username }}
+            </div>
+            <div style="margin-bottom: 0.7em;">
+                <label for="id_password" style="font-weight:500; margin-bottom:0.3em; display:block;">Password</label>
+                {{ form.password }}
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div class="links">
+            <a href="/accounts/register/jobseeker/">Register as Job Seeker</a> |
+            <a href="/accounts/register/recruiter/">Register as Recruiter</a>
+        </div>
+        <div class="links" style="margin-top:0.7em;">
+            <a href="/accounts/password_reset/">Forgot password?</a>
+        </div>
+    </div>
+</body>
+</html>

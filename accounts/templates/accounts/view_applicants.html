@@ -1,0 +1,69 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Applicants</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #2980b9 0%, #6dd5fa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .applicants-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            padding: 2.5em 2em 2em 2em;
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            position: relative;
+        }
+        .applicants-card h2 {
+            margin-bottom: 1.2em;
+            color: #2980b9;
+            font-weight: 700;
+        }
+        .applicants-list {
+            text-align: left;
+            margin-top: 1.5em;
+        }
+        .applicant {
+            background: #f7fafd;
+            border-radius: 8px;
+            padding: 1em 1.5em;
+            margin-bottom: 1em;
+            box-shadow: 0 2px 8px 0 rgba(31,38,135,0.07);
+        }
+        .applicant strong {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="applicants-card">
+        <h2>Applicants</h2>
+        <div class="applicants-list">
+            {% for applicant in applicants %}
+            <div class="applicant">
+                <strong>{{ applicant.full_name }}</strong> ({{ applicant.email }})<br>
+                <span>Skills: {{ applicant.skills }}</span><br>
+                <span>Experience: {{ applicant.experience }} years</span>
+            </div>
+            {% empty %}
+            <div>No applicants found.</div>
+            {% endfor %}
+        </div>
+        <div class="links" style="margin-top:1.5em;">
+            <a href="/accounts/your_jobs/">Back to Your Jobs</a>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

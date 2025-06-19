@@ -1,0 +1,70 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Jobs</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #2980b9 0%, #6dd5fa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .jobs-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            padding: 2.5em 2em 2em 2em;
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            position: relative;
+        }
+        .jobs-card h2 {
+            margin-bottom: 1.2em;
+            color: #2980b9;
+            font-weight: 700;
+        }
+        .jobs-list {
+            text-align: left;
+            margin-top: 1.5em;
+        }
+        .job {
+            background: #f7fafd;
+            border-radius: 8px;
+            padding: 1em 1.5em;
+            margin-bottom: 1em;
+            box-shadow: 0 2px 8px 0 rgba(31,38,135,0.07);
+        }
+        .job strong {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="jobs-card">
+        <h2>Your Jobs</h2>
+        <div class="jobs-list">
+            {% for job in jobs %}
+            <div class="job">
+                <strong>{{ job.title }}</strong><br>
+                <span>Location: {{ job.location }}</span><br>
+                <span>Applicants: {{ job.applicants.count }}</span><br>
+                <a href="/accounts/view_applicants/{{ job.id }}/">View Applicants</a>
+            </div>
+            {% empty %}
+            <div>No jobs posted yet.</div>
+            {% endfor %}
+        </div>
+        <div class="links" style="margin-top:1.5em;">
+            <a href="/accounts/post_job/">Post a New Job</a>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

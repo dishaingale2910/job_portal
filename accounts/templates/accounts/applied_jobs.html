@@ -1,0 +1,53 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="dashboard-card">
+    <a href="{% url 'dashboard_jobseeker' %}" class="back-icon-link" title="Back to Available Jobs">
+        <span class="back-arrow" aria-hidden="true">&#8592;</span>
+    </a>
+    <h2 style="display:inline-block;margin-left:0.5em;vertical-align:middle;">Applied Jobs</h2>
+    {% if applications %}
+        <ul style="list-style:none;padding:0;">
+        {% for app in applications %}
+            <li style="margin-bottom:2em;padding:1.2em 1.5em;background:#f9f9f9;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <strong>{{ app.job.title }}</strong> - {{ app.job.company_name }}<br>
+                <span>Applied on: {{ app.applied_at|date:"Y-m-d H:i" }}</span><br>
+                {% if app.resume %}Resume: <a href="{{ app.resume.url }}" target="_blank">View</a><br>{% endif %}
+                <span>Status: <b>Submitted</b></span><br>
+                <!-- Example progress bar for tracking (customize as needed) -->
+                <div style="margin-top:0.7em;width:100%;max-width:340px;background:#eaf6ff;border-radius:6px;overflow:hidden;height:18px;">
+                  <div style="width:33%;background:#2980b9;height:100%;color:#fff;text-align:center;font-size:0.95em;line-height:18px;transition:width 0.5s;">Submitted</div>
+                </div>
+                <small style="color:#888;">(Tracking: Submitted &rarr; Under Review &rarr; Interview &rarr; Offer)</small>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have not applied to any jobs yet.</p>
+    {% endif %}
+</div>
+<style>
+.back-icon-link {
+    display: inline-flex;
+    align-items: center;
+    color: #2575fc;
+    text-decoration: none;
+    font-size: 1.25em;
+    background: none;
+    border: none;
+    padding: 0.2em 0.7em 0.2em 0.1em;
+    border-radius: 5px;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    transition: background 0.2s, color 0.2s;
+}
+.back-icon-link:hover {
+    background: #eaf6ff;
+    color: #174ea6;
+    text-decoration: none;
+}
+.back-arrow {
+    font-size: 1.1em;
+    vertical-align: middle;
+}
+</style>
+{% endblock %}

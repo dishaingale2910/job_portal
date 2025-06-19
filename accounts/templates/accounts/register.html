@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #2980b9 0%, #6dd5fa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .register-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            padding: 2.5em 2em 2em 2em;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+        .register-card h2 {
+            margin-bottom: 1.2em;
+            color: #2980b9;
+            font-weight: 700;
+        }
+        .register-card form {
+            margin-bottom: 1em;
+            text-align: left;
+            max-width: 340px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        .register-card form div {
+            margin-bottom: 0.7em;
+        }
+        .register-card form label {
+            font-weight: 500;
+            margin-bottom: 0.3em;
+            display: block;
+        }
+        .register-card input[type="text"],
+        .register-card input[type="email"],
+        .register-card input[type="password"] {
+            width: 100%;
+            padding: 0.9em;
+            margin: 0.6em 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f7f7f7;
+            font-size: 1em;
+        }
+        .register-card button {
+            width: 100%;
+            padding: 0.9em;
+            background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1em;
+            transition: background 0.3s;
+        }
+        .register-card button:hover {
+            background: linear-gradient(90deg, #6dd5fa 0%, #2980b9 100%);
+        }
+        .register-card .links {
+            margin-top: 1em;
+        }
+        .register-card .links a {
+            color: #2980b9;
+            text-decoration: none;
+            margin: 0 0.5em;
+            font-size: 0.98em;
+        }
+        .register-card .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <h2>Register</h2>
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            <div>
+                <label for="id_username">Username</label>
+                <input type="text" name="username" id="id_username" required>
+            </div>
+            <div>
+                <label for="id_email">Email</label>
+                <input type="email" name="email" id="id_email" required>
+            </div>
+            <div>
+                <label for="id_password">Password</label>
+                <input type="password" name="password" id="id_password" required>
+            </div>
+            <button type="submit">Register</button>
+        </form>
+        <div class="links" style="margin-top:1.5em;">
+            <a href="/accounts/login/">Already have an account? Login</a>
+        </div>
+    </div>
+</body>
+</html>

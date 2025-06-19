@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #2980b9 0%, #6dd5fa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, ssans-serif;
+        }
+        .profile-card {
+            max-width: 900px;
+            width: 100%;
+            margin: 2em auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.12);
+            padding: 2.5em 2em 2em 2em;
+            overflow-x: hidden;
+        }
+        .profile-card h2 {
+            color: #2980b9;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1.5em;
+        }
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2em;
+            width: 100%;
+        }
+        .form-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            margin-bottom: 0.5em;
+            flex: 1 1 240px;
+            box-sizing: border-box;
+            /* Increased base flex-basis for wider fields in dynamic rows */
+        }
+        .form-row {
+            display: flex;
+            gap: 1em;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        .form-row > * {
+            min-width: 0;
+            max-width: 100%;
+            flex: 1 1 0;
+            box-sizing: border-box;
+        }
+        #experience-list, #education-list, #certifications-list {
+            width: 100%;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+        input, select, textarea {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .profile-card .info {
+            text-align: left;
+            margin-bottom: 1.2em;
+        }
+        .profile-card .info strong {
+            color: #2980b9;
+        }
+        .profile-card .links {
+            margin-top: 1em;
+        }
+        .profile-card .links a {
+            color: #2980b9;
+            text-decoration: none;
+            margin: 0 0.5em;
+            font-size: 0.98em;
+        }
+        .profile-card .links a:hover {
+            text-decoration: underline;
+        }
+        .form-actions {
+            width: 100%;
+            text-align: left;
+            margin-top: 1.5em;
+            display: block;
+            margin-bottom: 0;
+        }
+        button {
+            padding: 0.8em 2.5em;
+            background: linear-gradient(90deg,#2980b9 0%,#6dd5fa 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.08em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .logout-link {
+            color: #d9534f;
+            font-weight: 500;
+        }
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 9999;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            display: none;
+            max-height: 220px;
+            overflow-y: auto;
+            box-shadow: 0 4px 16px 0 rgba(31,38,135,0.10);
+        }
+        .autocomplete-items.active {
+            display: block;
+        }
+        .autocomplete-items div {
+            padding: 0.7em 1em;
+            cursor: pointer;
+            background: #f7fafd;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        .autocomplete-items div:hover {
+            background: #eaf6ff;
+        }
+        /* Prevent dropdown from escaping form width */
+        .profile-form { position: relative; }
+        /* Profile section card styles */
+        .profile-section-card {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 2em;
+            margin-bottom: 1.5em;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        .profile-section-card h3 {
+            color: #2980b9;
+            font-weight: 600;
+            margin-bottom: 1.2em;
+            position: relative;
+        }
+        .profile-section-card h3:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg,#2980b9 0%,#6dd5fa 100%);
+            bottom: -4px;
+            left: 0;
+        }
+        @media (max-width: 600px) {
+            .profile-card {
+                padding: 1em 0.5em;
+            }
+            .profile-section-card {
+                padding: 1em 0.5em;
+            }
+            .form-row {
+                gap: 0.5em;
+            }
+            .form-group {
+                min-width: 140px;
+            }
+        }
+    </style>
+    <!-- Add Pikaday CSS and JS for in-page date picker -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
+    <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+</head>
+<body>
+    <div class="profile-card">
+        {% if messages %}
+            <ul class="messages" style="list-style: none; padding: 0; margin-bottom: 1em;">
+                {% for message in messages %}
+                    <li style="background: #eaf6ff; color: #2575fc; border-left: 4px solid #2980b9; padding: 0.7em 1em; border-radius: 6px; margin-bottom: 0.5em;">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if not edit_exp_id and not edit_edu_id and not request.GET.edit %}
+        <!-- PROFILE PREVIEW (no cards) -->
+        <h2 style="margin-bottom:1.2em;">Profile Preview</h2>
+        <div style="margin-bottom:1.5em;">
+            <strong>Full Name:</strong> {{ user.full_name|default_if_none:'-' }}<br>
+            <strong>Email ID:</strong> {{ user.email|default_if_none:'-' }}<br>
+            <strong>Mobile Number:</strong> {{ user.phone_number|default_if_none:'-' }}<br>
+            <strong>Current Location:</strong> {{ user.location|default_if_none:'-' }}<br>
+            <br>
+            <strong>Employment History:</strong>
+            {% if experiences %}
+                <ul style="margin:0 0 1em 1.2em;">
+                {% for exp in experiences %}
+                    <li>
+                        <b>{{ exp.job_title }}</b> at <b>{{ exp.company }}</b>
+                        <span style="color:#888;">({{ exp.start_year }}{% if exp.end_year %} - {{ exp.end_year }}{% else %} - Present{% endif %})</span><br>
+                        <span style="color:#888;">{{ exp.location }}</span><br>
+                        <span>{{ exp.description }}</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}<span style="color:#888;">No employment history added.</span>{% endif %}
+            <br>
+            <strong>Education:</strong>
+            {% if educations %}
+                <ul style="margin:0 0 1em 1.2em;">
+                {% for edu in educations %}
+                    <li>
+                        <b>{{ edu.degree }}</b> at <b>{{ edu.institution }}</b>
+                        <span style="color:#888;">({{ edu.passing_year }})</span><br>
+                        <span style="color:#888;">{{ edu.location }}</span><br>
+                        <span>{{ edu.description }}</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}<span style="color:#888;">No education added.</span>{% endif %}
+            <br>
+            <strong>Certifications:</strong>
+            {% if certifications %}
+                <ul style="margin:0 0 1em 1.2em;">
+                {% for cert in certifications %}
+                    <li>
+                        <b>{{ cert.name }}</b>
+                        {% if cert.completed_date %} (Completed: {{ cert.completed_date }}){% endif %}
+                        {% if cert.no_expiry %} (No Expiry)
+                        {% elif cert.expiry_date %} (Expires: {{ cert.expiry_date }})
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}<span style="color:#888;">No certifications added.</span>{% endif %}
+            <br>
+            <strong>Skills:</strong> {{ user.skills|default_if_none:'No skills listed.' }}<br>
+            <strong>Languages:</strong> {{ user.languages|default_if_none:'No languages listed.' }}<br>
+            <strong>Profile Summary:</strong><br>
+            <div style="margin-bottom:1em;">{{ user.profile_summary|default_if_none:'No summary provided.' }}</div>
+            <strong>Resume:</strong>
+            {% if resume_obj and resume_obj.file %}
+                <a href="{{ resume_obj.file.url }}" target="_blank">View Current Resume</a>
+            {% else %}
+                <span style="color:#888;">No resume uploaded.</span>
+            {% endif %}
+            <br>
+            <strong>Desired Job Type:</strong> {{ user.desired_job_type|default_if_none:'Not specified' }}<br>
+            <strong>Preferred Location(s):</strong> {{ user.preferred_location|default_if_none:'Not specified' }}
+        </div>
+        <div class="form-actions" style="margin-bottom:2em;">
+            <a href="?edit=1" class="btn" style="background:#2575fc; color:#fff; padding:0.7em 2em; border-radius:8px; text-decoration:none; font-weight:600;">Edit Profile</a>
+            <a href="{% url 'dashboard_jobseeker' %}" class="btn" style="background:#eaf6ff; color:#2575fc; padding:0.7em 2em; border-radius:8px; text-decoration:none; font-weight:600; margin-left:1em;">Back to Home</a>
+        </div>
+        {% else %}
+        <!-- MAIN PROFILE FORM (edit mode) -->
+        <form method="post" enctype="multipart/form-data" class="profile-form" autocomplete="off">
+            {% csrf_token %}
+            <!-- BASIC INFORMATION CARD -->
+            <div class="profile-section-card">
+                <h3>Basic Information</h3>
+                <div class="form-group">
+                    <label for="id_full_name">Full Name</label>
+                    {{ form.full_name }}
+                </div>
+                <div class="form-group">
+                    <label for="id_email">Email ID</label>
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    <label for="id_phone_number">Mobile Number</label>
+                    {{ form.phone_number }}
+                </div>
+                <div class="form-group" style="position:relative;">
+                    <label for="id_location">Current Location</label>
+                    <input type="text" name="location" id="id_location" class="location-autocomplete" value="{{ form.location.value|default_if_none:'' }}" autocomplete="off" placeholder="City, State">
+                    <small style="color:#888;">Start typing your city</small>
+                    <div id="location-suggestions" class="autocomplete-items" style="display:none;"></div>
+                </div>
+            </div>
+            <!-- EMPLOYMENT HISTORY CARD -->
+            <div class="profile-section-card">
+                <h3 style="display:flex;align-items:center;justify-content:space-between;gap:0.5em;">
+                    <span>Employment History</span>
+                    <span onclick="addExperience()" class="add-icon" aria-label="Add Employment" title="Add Employment" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.2em;color:#2980b9;cursor:pointer;user-select:none;transition:color 0.2s;line-height:1;">
+                        +
+                    </span>
+                </h3>
+                <div class="form-group" id="experience-section">
+                    <div id="experience-list"></div>
+                </div>
+            </div>
+            <!-- EDUCATION CARD -->
+            <div class="profile-section-card">
+                <h3 style="display:flex;align-items:center;justify-content:space-between;gap:0.5em;">
+                    <span>Education</span>
+                    <span onclick="addEducation()" class="add-icon" aria-label="Add Education" title="Add Education" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.2em;color:#2980b9;cursor:pointer;user-select:none;transition:color 0.2s;line-height:1;">
+                        +
+                    </span>
+                </h3>
+                <div class="form-group" id="education-section">
+                    <div id="education-list"></div>
+                </div>
+            </div>
+            <!-- CERTIFICATIONS CARD -->
+            <div class="profile-section-card">
+                <h3 style="display:flex;align-items:center;justify-content:space-between;gap:0.5em;">
+                    <span>Certifications</span>
+                    <span onclick="addCertification()" class="add-icon" aria-label="Add Certificate" title="Add Certificate" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.2em;color:#2980b9;cursor:pointer;user-select:none;transition:color 0.2s;line-height:1;">
+                        +
+                    </span>
+                </h3>
+                <div id="certifications-list"></div>
+            </div>
+            <!-- SKILLS CARD -->
+            <div class="profile-section-card">
+                <h3>Skills</h3>
+                <div class="form-group" style="position:relative;">
+                    <label for="id_skills">Key Skills</label>
+                    <input type="text" name="skills" id="id_skills" class="skills-autocomplete" value="{{ form.skills.value|default_if_none:'' }}" autocomplete="off" placeholder="e.g. Python, Django, SQL">
+                    <small style="color:#888;">Type to see suggestions</small>
+                    <div id="skills-suggestions" class="autocomplete-items" style="display:none;"></div>
+                </div>
+            </div>
+            <!-- LANGUAGES CARD -->
+            <div class="profile-section-card">
+                <h3>Languages</h3>
+                <div class="form-group">
+                    <label for="id_languages">Languages</label>
+                    <input type="text" name="languages" id="id_languages" value="{{ form.languages.value|default_if_none:'' }}" class="form-control" placeholder="e.g. English, Hindi, French">
+                </div>
+            </div>
+            <!-- PROFILE SUMMARY CARD -->
+            <div class="profile-section-card">
+                <h3>Profile Summary</h3>
+                <div class="form-group">
+                    <label for="id_profile_summary">Profile Summary</label>
+                    <textarea name="profile_summary" id="id_profile_summary" class="form-control" rows="3" placeholder="A short paragraph that highlights your experience and skills.">{{ form.profile_summary.value|default_if_none:'' }}</textarea>
+                </div>
+            </div>
+            <!-- RESUME CARD -->
+            <div class="profile-section-card">
+                <h3>Resume</h3>
+                <div class="form-group">
+                    <label for="id_resume">Resume</label><br>
+                    {% if resume_obj and resume_obj.file %}
+                        <a href="{{ resume_obj.file.url }}" target="_blank">View Current Resume</a><br>
+                    {% endif %}
+                    {{ form.resume }}
+                </div>
+            </div>
+            <!-- DESIRED JOB TYPE CARD -->
+            <div class="profile-section-card">
+                <h3>Desired Job Type</h3>
+                <div class="form-group">
+                    <label for="id_desired_job_type">Desired Job Type</label>
+                    <select name="desired_job_type" id="id_desired_job_type" class="form-control">
+                        <option value="">Select...</option>
+                        <option value="full-time" {% if form.desired_job_type.value == 'full-time' %}selected{% endif %}>Full Time</option>
+                        <option value="part-time" {% if form.desired_job_type.value == 'part-time' %}selected{% endif %}>Part Time</option>
+                        <option value="internship" {% if form.desired_job_type.value == 'internship' %}selected{% endif %}>Internship</option>
+                        <option value="contract" {% if form.desired_job_type.value == 'contract' %}selected{% endif %}>Contract</option>
+                        <option value="freelance" {% if form.desired_job_type.value == 'freelance' %}selected{% endif %}>Freelance</option>
+                    </select>
+                </div>
+                <div class="form-group" style="position:relative;">
+                    <label for="id_preferred_location">Preferred Location(s)</label>
+                    <input type="text" name="preferred_location" id="id_preferred_location" class="location-autocomplete-multi" value="{{ form.preferred_location.value|default_if_none:'' }}" autocomplete="off" placeholder="Type and select up to 5 cities, separated by commas">
+                    <small style="color:#888;">Start typing a city and select from suggestions. Separate multiple cities with commas (max 5).</small>
+                    <div id="preferred-location-suggestions" class="autocomplete-items" style="display:none;"></div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" name="save_profile">Save Profile</button>
+                <button type="button" onclick="window.location.href='{% url 'dashboard_jobseeker' %}'" style="padding: 0.8em 2.5em; background: linear-gradient(90deg,#2980b9 0%,#6dd5fa 100%); color: #fff; border: none; border-radius: 8px; font-size: 1.08em; font-weight: 600; cursor: pointer; margin-left:1em;">Back to Home</button>
+            </div>
+        </form>
+        {% endif %}
+        <div class="links" style="margin-top:1.5em; text-align:center;">
+            <a href="/accounts/logout/" class="logout-link">Logout</a>
+        </div>
+    </div>
+    <script>
+        // Suggestions for skills and location
+        const skillsList = [
+            'Python', 'Django', 'JavaScript', 'React', 'SQL', 'HTML', 'CSS', 'Java', 'C#', 'C++', 'AWS', 'Docker', 'Kubernetes', 'Node.js', 'Angular', 'TypeScript', 'REST', 'GraphQL', 'Machine Learning', 'Data Analysis', 'Excel', 'Communication', 'Leadership', 'Project Management'
+        ];
+        const locationList = [
+            'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Pune', 'Jaipur', 'Surat', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad', 'Patna', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan-Dombivli', 'Vasai-Virar', 'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Ranchi', 'Howrah', 'Coimbatore', 'Jabalpur', 'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli–Dharwad', 'Mysore', 'Tiruchirappalli', 'Bareilly', 'Aligarh', 'Tiruppur', 'Moradabad', 'Jalandhar', 'Bhubaneswar', 'Salem', 'Mira-Bhayandar', 'Warangal', 'Guntur', 'Bhiwandi', 'Saharanpur', 'Gorakhpur', 'Bikaner', 'Amravati', 'Noida', 'Jamshedpur', 'Bhilai', 'Cuttack', 'Firozabad', 'Kochi', 'Nellore', 'Bhavnagar', 'Dehradun', 'Durgapur', 'Asansol', 'Rourkela', 'Nanded', 'Kolhapur', 'Ajmer', 'Akola', 'Gulbarga', 'Jamnagar', 'Ujjain', 'Loni', 'Siliguri', 'Jhansi', 'Ulhasnagar', 'Nellore', 'Jammu', 'Sangli-Miraj & Kupwad', 'Belgaum', 'Mangalore', 'Ambattur', 'Tirunelveli', 'Malegaon', 'Gaya', 'Jalgaon', 'Udaipur', 'Maheshtala', 'Davanagere', 'Kozhikode', 'Kurnool', 'Rajpur Sonarpur', 'Bokaro', 'South Dumdum', 'Bellary', 'Patiala', 'Gopalpur', 'Agartala', 'Bhagalpur', 'Muzaffarnagar', 'Bhatpara', 'Panihati', 'Latur', 'Dhule', 'Rohtak', 'Korba', 'Bhilwara', 'Berhampur', 'Muzaffarpur', 'Ahmednagar', 'Mathura', 'Kollam', 'Avadi', 'Kadapa', 'Anantapur', 'Kamarhati', 'Bilaspur', 'Sambalpur', 'Shahjahanpur', 'Satara', 'Bijapur', 'Rampur', 'Shivamogga', 'Chandrapur', 'Junagadh', 'Thrissur', 'Alwar', 'Bardhaman', 'Kulti', 'Nizamabad', 'Parbhani', 'Tumkur', 'Khammam', 'Ozhukarai', 'Bihar Sharif', 'Panipat', 'Darbhanga', 'Bally', 'Aizawl', 'Dewas', 'Ichalkaranji', 'Karnal', 'Bathinda', 'Jalna', 'Eluru', 'Barasat', 'Kirari Suleman Nagar', 'Purnia', 'Satna', 'Mau', 'Sonipat', 'Farrukhabad', 'Sagar', 'Rourkela Industrial Township', 'Durg', 'Imphal', 'Ratlam', 'Hapur', 'Arrah', 'Karimnagar', 'Anantapuram', 'Etawah', 'Ambarnath', 'North Dumdum', 'Bharatpur', 'Begusarai', 'New Delhi', 'Gandhidham', 'Baranagar', 'Tiruvottiyur', 'Puducherry', 'Sikar', 'Thoothukudi', 'Rewa', 'Mirzapur', 'Raichur', 'Pali', 'Ramagundam', 'Haridwar', 'Vijayanagaram', 'Tenali', 'Nagercoil', 'Sri Ganganagar', 'Karawal Nagar', 'Mango', 'Thanjavur', 'Bulandshahr', 'Uluberia', 'Katni', 'Sambhal', 'Singrauli', 'Nadiad', 'Secunderabad', 'Naihati', 'Yamunanagar', 'Bidhan Nagar', 'Pallavaram', 'Bidar', 'Munger', 'Panchkula', 'Burhanpur', 'Raurkela', 'Kharagpur', 'Dindigul', 'Gandhinagar', 'Hospet', 'Nangloi Jat', 'Malda', 'Ongole', 'Deoghar', 'Chapra', 'Haldia', 'Khandwa', 'Nandyal', 'Morena', 'Amroha', 'Anand', 'Bhind', 'Bhalswa Jahangir Pur', 'Madhyamgram', 'Bhiwani', 'Berhampore', 'Ambala', 'Morbi', 'Fatehpur', 'Raebareli', 'Khora, Ghaziabad', 'Chittoor', 'Bhusawal', 'Orai', 'Bahraich', 'Phusro', 'Vellore', 'Mehsana', 'Raiganj', 'Sirsa', 'Danapur', 'Serampore', 'Sultan Pur Majra', 'Guna', 'Jaunpur', 'Panvel', 'Shivpuri', 'Surendranagar Dudhrej', 'Unnao', 'Chinsurah', 'Alappuzha', 'Kottayam', 'Machilipatnam', 'Shimla', 'Adoni', 'Udupi', 'Katihar', 'Proddatur', 'Mahbubnagar', 'Bettiah', 'Kishanganj', 'Suryapet', 'Wardha', 'Ranaghat', 'Arrah', 'Satna', 'Ambikapur', 'Jaigaon', 'Kishangarh', 'Buxar', 'Sasaram', 'Hazaribagh', 'Palghar', 'Gopalganj', 'Banda', 'Chhapra', 'Bhiwadi', 'Bongaigaon', 'Dibrugarh', 'Baripada', 'Karaikudi', 'North Lakhimpur', 'Bettiah', 'Bongaigaon', 'Buxar', 'Chhapra', 'Dibrugarh', 'Gopalganj', 'Hazaribagh', 'Jaigaon', 'Karaikudi', 'Kishanganj', 'Kishangarh', 'North Lakhimpur', 'Palghar', 'Sasaram', 'Satna', 'Suryapet', 'Wardha', 'Ambikapur', 'Arrah', 'Banda', 'Baripada'
+        ];
+        function showSkillsSuggestions(inputId, suggestionsId, arr) {
+            const input = document.getElementById(inputId);
+            const suggestions = document.getElementById(suggestionsId);
+            input.addEventListener('input', function(e) {
+                const val = input.value.split(',').pop().trim();
+                suggestions.innerHTML = '';
+                if (!val) { suggestions.classList.remove('active'); suggestions.style.display = 'none'; return; }
+                arr.filter(x => x.toLowerCase().includes(val.toLowerCase())).slice(0,8).forEach(function(item) {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.textContent = item;
+                    itemDiv.onclick = function(ev) {
+                        let current = input.value.split(',');
+                        current[current.length-1] = item;
+                        input.value = current.join(', ').replace(/,\s*$/, '') + ', ';
+                        suggestions.classList.remove('active');
+                        suggestions.style.display = 'none';
+                        input.focus();
+                        ev.stopPropagation();
+                    };
+                    suggestions.appendChild(itemDiv);
+                });
+                if (suggestions.childNodes.length > 0) {
+                    suggestions.classList.add('active');
+                    suggestions.style.display = 'block';
+                } else {
+                    suggestions.classList.remove('active');
+                    suggestions.style.display = 'none';
+                }
+            });
+            input.addEventListener('blur', function() {
+                setTimeout(() => { suggestions.classList.remove('active'); suggestions.style.display = 'none'; }, 150);
+            });
+        }
+        function showMultiLocationSuggestions(inputId, suggestionsId, arr, maxCount) {
+            const input = document.getElementById(inputId);
+            const suggestions = document.getElementById(suggestionsId);
+            input.addEventListener('input', function(e) {
+                let cities = input.value.split(',').map(x => x.trim()).filter(x => x);
+                const val = cities[cities.length-1] || '';
+                suggestions.innerHTML = '';
+                if (!val || cities.length > maxCount) { suggestions.classList.remove('active'); suggestions.style.display = 'none'; return; }
+                arr.filter(x => x.toLowerCase().includes(val.toLowerCase()) && !cities.slice(0,-1).includes(x)).slice(0,8).forEach(function(item) {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.textContent = item;
+                    itemDiv.onclick = function(ev) {
+                        let current = input.value.split(',');
+                        current[current.length-1] = item;
+                        let unique = Array.from(new Set(current.map(x => x.trim()).filter(x => x)));
+                        if (unique.length > maxCount) unique = unique.slice(0, maxCount);
+                        input.value = unique.join(', ') + (unique.length < maxCount ? ', ' : '');
+                        suggestions.classList.remove('active');
+                        suggestions.style.display = 'none';
+                        input.focus();
+                        ev.stopPropagation();
+                    };
+                    suggestions.appendChild(itemDiv);
+                });
+                if (suggestions.childNodes.length > 0) {
+                    suggestions.classList.add('active');
+                    suggestions.style.display = 'block';
+                } else {
+                    suggestions.classList.remove('active');
+                    suggestions.style.display = 'none';
+                }
+            });
+            input.addEventListener('focus', function() {
+                let cities = input.value.split(',').map(x => x.trim()).filter(x => x);
+                const val = cities[cities.length-1] || '';
+                if (val && suggestions.innerHTML) {
+                    suggestions.classList.add('active');
+                    suggestions.style.display = 'block';
+                }
+            });
+            document.addEventListener('mousedown', function(e) {
+                if (!input.closest('.form-group').contains(e.target)) {
+                    suggestions.classList.remove('active');
+                    suggestions.style.display = 'none';
+                }
+            });
+        }
+        showSkillsSuggestions('id_skills', 'skills-suggestions', skillsList);
+        showSkillsSuggestions('id_location', 'location-suggestions', locationList);
+        showMultiLocationSuggestions('id_preferred_location', 'preferred-location-suggestions', locationList, 5);
+        // Dynamic experience and education fields
+        let experienceIndex = 0;
+        let educationIndex = 0;
+        let certificationIndex = 0;
+        function addExperience() {
+            const container = document.getElementById('experience-list');
+            const idx = experienceIndex;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'experience-entry';
+            wrapper.innerHTML = `
+                <div class="form-row" style="margin-bottom: 1em; gap: 1.5em;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="id_experience_${idx}_job_title">Job Title</label>
+                        <input type="text" name="experience_${idx}_job_title" id="id_experience_${idx}_job_title" class="form-control" placeholder="e.g. Software Engineer">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="id_experience_${idx}_company">Company</label>
+                        <input type="text" name="experience_${idx}_company" id="id_experience_${idx}_company" class="form-control" placeholder="e.g. ABC Corp">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="id_experience_${idx}_location">Location</label>
+                        <input type="text" name="experience_${idx}_location" id="id_experience_${idx}_location" class="form-control" placeholder="City, State">
+                    </div>
+                </div>
+                <div class="form-row" style="margin-bottom: 1.5em; gap: 1.5em; align-items: flex-end;">
+                    <div class="form-group" style="flex: 1.5; min-width: 120px;">
+                        <label for="id_experience_${idx}_from_date">From</label>
+                        <input type="text" name="experience_${idx}_from_date" id="id_experience_${idx}_from_date" class="form-control datepicker" placeholder="YYYY-MM">
+                    </div>
+                    <div class="form-group" style="flex: 1.5; min-width: 120px;">
+                        <label for="id_experience_${idx}_to_date">To</label>
+                        <input type="text" name="experience_${idx}_to_date" id="id_experience_${idx}_to_date" class="form-control datepicker" placeholder="YYYY-MM">
+                    </div>
+                    <div class="form-group" style="flex: 1.2; min-width: 120px;">
+                        <label for="id_experience_${idx}_currently_working">Currently Working?</label>
+                        <select name="experience_${idx}_currently_working" id="id_experience_${idx}_currently_working" class="form-control">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 2; min-width: 160px;">
+                        <label for="id_experience_${idx}_description">Job Description</label>
+                        <textarea name="experience_${idx}_description" id="id_experience_${idx}_description" class="form-control" rows="2" placeholder="Brief description of your responsibilities"></textarea>
+                    </div>
+                    <span onclick="this.closest('.experience-entry').remove(); removePikadayForExperience(${idx});" class="remove-icon" aria-label="Remove Employment" title="Remove Employment" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.4em;color:#d9534f;cursor:pointer;user-select:none;transition:color 0.2s;line-height:1;margin-left:0.5em;align-self:center;">&#10005;</span>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            // Initialize Pikaday for both date fields
+            var fromInput = document.getElementById(`id_experience_${idx}_from_date`);
+            var toInput = document.getElementById(`id_experience_${idx}_to_date`);
+            if (window.Pikaday) {
+                createPikadayInstance(fromInput);
+                createPikadayInstance(toInput);
+            }
+            // Attach change handler for currently working
+            var select = document.getElementById(`id_experience_${idx}_currently_working`);
+            select.addEventListener('change', function() {
+                toggleToDate(select, `id_experience_${idx}_to_date`);
+            });
+            // Immediately set correct state
+            toggleToDate(select, `id_experience_${idx}_to_date`);
+            experienceIndex++;
+        }
+        function removePikadayForExperience(idx) {
+            destroyPikadayInstance(document.getElementById(`id_experience_${idx}_from_date`));
+            destroyPikadayInstance(document.getElementById(`id_experience_${idx}_to_date`));
+        }
+        function addEducation() {
+            const container = document.getElementById('education-list');
+            const idx = educationIndex;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'education-entry';
+            wrapper.innerHTML = `
+                <div class="form-row" style="margin-bottom: 1em; gap: 1.5em;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="id_education_${idx}_degree">Degree</label>
+                        <input type="text" name="education_${idx}_degree" id="id_education_${idx}_degree" class="form-control" placeholder="e.g. Bachelor of Technology">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="id_education_${idx}_field_of_study">Field of Study</label>
+                        <input type="text" name="education_${idx}_field_of_study" id="id_education_${idx}_field_of_study" class="form-control" placeholder="e.g. Computer Science">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="id_education_${idx}_institute">Institute</label>
+                        <input type="text" name="education_${idx}_institute" id="id_education_${idx}_institute" class="form-control" placeholder="e.g. XYZ University">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="id_education_${idx}_location">Location</label>
+                        <input type="text" name="education_${idx}_location" id="id_education_${idx}_location" class="form-control" placeholder="City, State">
+                    </div>
+                </div>
+                <div class="form-row" style="margin-bottom: 1.5em; gap: 1.5em; align-items: flex-end;">
+                    <div class="form-group" style="flex: 1.5; min-width: 120px;">
+                        <label for="id_education_${idx}_from_date">From</label>
+                        <input type="text" name="education_${idx}_from_date" id="id_education_${idx}_from_date" class="form-control datepicker" placeholder="YYYY-MM">
+                    </div>
+                    <div class="form-group" style="flex: 1.5; min-width: 120px;">
+                        <label for="id_education_${idx}_to_date">To</label>
+                        <input type="text" name="education_${idx}_to_date" id="id_education_${idx}_to_date" class="form-control datepicker" placeholder="YYYY-MM">
+                    </div>
+                    <div class="form-group" style="flex: 1.2; min-width: 120px;">
+                        <label for="id_education_${idx}_currently_studying">Currently Studying?</label>
+                        <select name="education_${idx}_currently_studying" id="id_education_${idx}_currently_studying" class="form-control">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 2; min-width: 160px;">
+                        <label for="id_education_${idx}_description">Description</label>
+                        <textarea name="education_${idx}_description" id="id_education_${idx}_description" class="form-control" rows="2" placeholder="Brief description of your coursework and projects"></textarea>
+                    </div>
+                    <span onclick="this.closest('.education-entry').remove(); removePikadayForEducation(${idx});" class="remove-icon" aria-label="Remove Education" title="Remove Education" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.4em;color:#d9534f;cursor:pointer;user-select:none;transition:color 0.2s;line-height:1;margin-left:0.5em;align-self:center;">&#10005;</span>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            // Initialize Pikaday for both date fields
+            var fromInput = document.getElementById(`id_education_${idx}_from_date`);
+            var toInput = document.getElementById(`id_education_${idx}_to_date`);
+            if (window.Pikaday) {
+                createPikadayInstance(fromInput);
+                createPikadayInstance(toInput);
+            }
+            // Attach change handler for currently studying
+            var select = document.getElementById(`id_education_${idx}_currently_studying`);
+            select.addEventListener('change', function() {
+                toggleToDate(select, `id_education_${idx}_to_date`);
+            });
+            // Immediately set correct state
+            toggleToDate(select, `id_education_${idx}_to_date`);
+            educationIndex++;
+        }
+        function removePikadayForEducation(idx) {
+            destroyPikadayInstance(document.getElementById(`id_education_${idx}_from_date`));
+            destroyPikadayInstance(document.getElementById(`id_education_${idx}_to_date`));
+        }
+        function addCertification() {
+            const container = document.getElementById('certifications-list');
+            const idx = certificationIndex;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'certification-entry';
+            wrapper.innerHTML = `
+                <div class="form-row" style="margin-bottom: 1em; gap: 1.5em; align-items: flex-end;">
+                    <div class="form-group" style="flex: 2; min-width: 160px;">
+                        <label for="id_certification_${idx}_name">Certificate Name</label>
+                        <input type="text" name="certification_${idx}_name" id="id_certification_${idx}_name" class="form-control" placeholder="e.g. AWS Certified Solutions Architect">
+                    </div>
+                    <div class="form-group" style="flex: 1.2; min-width: 120px;">
+                        <label for="id_certification_${idx}_completed">Completed</label>
+                        <input type="text" name="certification_${idx}_completed" id="id_certification_${idx}_completed" class="form-control datepicker" placeholder="YYYY-MM">
+                    </div>
+                    <div class="form-group" style="flex: 1.2; min-width: 120px;">
+                        <label for="id_certification_${idx}_expiry">Expiry</label>
+                        <input type="text" name="certification_${idx}_expiry" id="id_certification_${idx}_expiry" class="form-control datepicker" placeholder="YYYY-MM">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 120px;">
+                        <label for="id_certification_${idx}_no_expiry">No Expiry?</label>
+                        <select name="certification_${idx}_no_expiry" id="id_certification_${idx}_no_expiry" class="form-control">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <span onclick="this.closest('.certification-entry').remove(); removePikadayForCertification(${idx});" class="remove-icon" aria-label="Remove Certification" title="Remove Certification" style="display:inline-flex;align-items:center;justify-content:center;font-size:1.4em;color:#d9534f;cursor:pointer;user-select:none;transition:color 0.2s;line-height:1;margin-left:0.5em;align-self:center;">&#10005;</span>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            // Initialize Pikaday for both date fields
+            var completedInput = document.getElementById(`id_certification_${idx}_completed`);
+            var expiryInput = document.getElementById(`id_certification_${idx}_expiry`);
+            if (window.Pikaday) {
+                createPikadayInstance(completedInput);
+                createPikadayInstance(expiryInput);
+            }
+            // Attach change handler for no_expiry
+            var select = document.getElementById(`id_certification_${idx}_no_expiry`);
+            select.addEventListener('change', function() {
+                toggleCertExpiry(select, `id_certification_${idx}_expiry`);
+            });
+            // Immediately set correct state
+            toggleCertExpiry(select, `id_certification_${idx}_expiry`);
+            certificationIndex++;
+        }
+        function removePikadayForCertification(idx) {
+            destroyPikadayInstance(document.getElementById(`id_certification_${idx}_completed`));
+            destroyPikadayInstance(document.getElementById(`id_certification_${idx}_expiry`));
+        }
+        function toggleToDate(select, toDateId) {
+            var toDateInput = document.getElementById(toDateId);
+            if (!toDateInput) return;
+            if (select.value === '1' || select.value === 1 || select.checked) {
+                toDateInput.value = '';
+                toDateInput.readOnly = true;
+                toDateInput.disabled = true;
+                toDateInput.parentElement.style.display = 'none';
+                destroyPikadayInstance(toDateInput);
+                toDateInput.onfocus = function(e) { e.target.blur(); };
+                toDateInput.onclick = function(e) { e.preventDefault(); };
+            } else {
+                toDateInput.readOnly = false;
+                toDateInput.disabled = false;
+                toDateInput.parentElement.style.display = '';
+                createPikadayInstance(toDateInput);
+                toDateInput.onfocus = null;
+                toDateInput.onclick = null;
+            }
+        }
+        function toggleCertExpiry(select, expiryId) {
+            var expiryInput = document.getElementById(expiryId);
+            if (!expiryInput) return;
+            if (select.value === '1' || select.value === 1 || select.checked) {
+                expiryInput.value = '';
+                expiryInput.readOnly = true;
+                expiryInput.disabled = true;
+                expiryInput.parentElement.style.display = 'none';
+                destroyPikadayInstance(expiryInput);
+                expiryInput.onfocus = function(e) { e.target.blur(); };
+                expiryInput.onclick = function(e) { e.preventDefault(); };
+            } else {
+                expiryInput.readOnly = false;
+                expiryInput.disabled = false;
+                expiryInput.parentElement.style.display = '';
+                createPikadayInstance(expiryInput);
+                expiryInput.onfocus = null;
+                expiryInput.onclick = null;
+            }
+        }
+        // Datepicker initialization
+        var pikadayInstances = {};
+        document.addEventListener('DOMContentLoaded', function() {
+            const datepickers = document.querySelectorAll('.datepicker');
+            datepickers.forEach(function(dp) {
+                var pk = new Pikaday({
+                    field: dp,
+                    format: 'YYYY-MM',
+                    onSelect: function(date) {
+                        dp.value = date.toISOString().substring(0, 7);
+                    }
+                });
+                pikadayInstances[dp.id] = pk;
+            });
+        });
+        function destroyPikadayInstance(input) {
+            if (input && pikadayInstances[input.id]) {
+                pikadayInstances[input.id].destroy();
+                delete pikadayInstances[input.id];
+            }
+        }
+        function createPikadayInstance(input) {
+            if (input && !pikadayInstances[input.id]) {
+                pikadayInstances[input.id] = new Pikaday({
+                    field: input,
+                    format: 'YYYY-MM',
+                    onSelect: function(date) {
+                        input.value = date.toISOString().substring(0, 7);
+                    }
+                });
+            }
+        }
+        function attachDynamicToDateHandlers() {
+            // Experience: select or checkbox
+            document.querySelectorAll('[id^="id_experience_"][id$="_currently_working"]').forEach(function(sel) {
+                var idx = sel.id.match(/id_experience_(\d+)_currently_working/);
+                if (idx) {
+                    var toDateId = 'id_experience_' + idx[1] + '_to_date';
+                    sel.addEventListener('change', function() {
+                        setTimeout(function() { toggleToDate(sel, toDateId); }, 10);
+                    });
+                    setTimeout(function() { toggleToDate(sel, toDateId); }, 10);
+                }
+            });
+            // Education: select or checkbox
+            document.querySelectorAll('[id^="id_education_"][id$="_currently_studying"]').forEach(function(sel) {
+                var idx = sel.id.match(/id_education_(\d+)_currently_studying/);
+                if (idx) {
+                    var toDateId = 'id_education_' + idx[1] + '_to_date';
+                    sel.addEventListener('change', function() {
+                        setTimeout(function() { toggleToDate(sel, toDateId); }, 10);
+                    });
+                    setTimeout(function() { toggleToDate(sel, toDateId); }, 10);
+                }
+            });
+            // Certification: select or checkbox
+            document.querySelectorAll('[id^="id_certification_"][id$="_no_expiry"]').forEach(function(sel) {
+                var idx = sel.id.match(/id_certification_(\d+)_no_expiry/);
+                if (idx) {
+                    var expiryId = 'id_certification_' + idx[1] + '_expiry';
+                    sel.addEventListener('change', function() {
+                        setTimeout(function() { toggleCertExpiry(sel, expiryId); }, 10);
+                    });
+                    setTimeout(function() { toggleCertExpiry(sel, expiryId); }, 10);
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize experiences if present (edit mode)
+            const experiencesData = window.experiencesData || [];
+            experienceIndex = 0;
+            if (experiencesData.length > 0) {
+                experiencesData.forEach(function(exp) {
+                    addExperience();
+                    // Set values for the last added row
+                    const idx = experienceIndex - 1;
+                    document.getElementById(`id_experience_${idx}_job_title`).value = exp.job_title || '';
+                    document.getElementById(`id_experience_${idx}_company`).value = exp.company || '';
+                    document.getElementById(`id_experience_${idx}_location`).value = exp.location || '';
+                    document.getElementById(`id_experience_${idx}_from_date`).value = exp.from_date || '';
+                    document.getElementById(`id_experience_${idx}_to_date`).value = exp.to_date || '';
+                    document.getElementById(`id_experience_${idx}_currently_working`).value = exp.currently_working ? '1' : '0';
+                    document.getElementById(`id_experience_${idx}_description`).value = exp.description || '';
+                });
+            }
+            // Initialize education if present (edit mode)
+            const educationsData = window.educationsData || [];
+            educationIndex = 0;
+            if (educationsData.length > 0) {
+                educationsData.forEach(function(edu) {
+                    addEducation();
+                    // Set values for the last added row
+                    const idx = educationIndex - 1;
+                    document.getElementById(`id_education_${idx}_degree`).value = edu.degree || '';
+                    document.getElementById(`id_education_${idx}_field_of_study`).value = edu.field_of_study || '';
+                    document.getElementById(`id_education_${idx}_institute`).value = edu.institute || '';
+                    document.getElementById(`id_education_${idx}_location`).value = edu.location || '';
+                    document.getElementById(`id_education_${idx}_from_date`).value = edu.from_date || '';
+                    document.getElementById(`id_education_${idx}_to_date`).value = edu.to_date || '';
+                    document.getElementById(`id_education_${idx}_currently_studying`).value = edu.currently_studying ? '1' : '0';
+                    document.getElementById(`id_education_${idx}_description`).value = edu.description || '';
+                });
+            }
+            // Initialize certifications if present (edit mode)
+            const certificationsData = window.certificationsData || [];
+            certificationIndex = 0;
+            if (certificationsData.length > 0) {
+                certificationsData.forEach(function(cert) {
+                    addCertification();
+                    // Set values for the last added row
+                    const idx = certificationIndex - 1;
+                    document.getElementById(`id_certification_${idx}_name`).value = cert.name || '';
+                    document.getElementById(`id_certification_${idx}_completed`).value = cert.completed || '';
+                    document.getElementById(`id_certification_${idx}_expiry`).value = cert.expiry || '';
+                    document.getElementById(`id_certification_${idx}_no_expiry`).value = cert.no_expiry ? '1' : '0';
+                });
+            }
+            setTimeout(attachDynamicToDateHandlers, 500); // ensure after dynamic fields are rendered
+        });
+    </script>
+</body>
+</html>
